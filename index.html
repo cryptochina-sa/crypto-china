@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto China | Welcome & Authentication</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .gold-gradient { background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); }
+        .gold-text { background: linear-gradient(135deg, #BF953F, #FCF6BA, #FBF5B7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+    <script>
+        // التحقق التلقائي: إذا كان الحساب مسجلاً مسبقاً ينتقل فوراً للرئيسية
+        if (localStorage.getItem("isLoggedIn") === "true") {
+            window.location.href = "home.html";
+        }
+    </script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+        <!-- 📝 واجهة إنشاء حساب جديد (Register) -->
+        <div id="box-register" class="bg-zinc-900/90 border border-yellow-600/40 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="text-center mb-3">
+                <div class="w-14 h-14 rounded-full gold-gradient flex items-center justify-center font-black text-zinc-950 text-2xl mx-auto shadow-md border border-yellow-400 mb-2">🏯</div>
+                <h2 class="text-lg font-bold gold-text">Create Account - Crypto China</h2>
+                <p class="text-xs text-zinc-400">Join the official quantitative trading platform</p>
+            </div>
+            
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="text-zinc-400 block mb-1">Email or Phone Number:</label>
+                    <input type="text" id="reg-identity" placeholder="example@gmail.com or phone..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="text-zinc-400 block mb-1">Password:</label>
+                    <input type="password" id="reg-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="text-zinc-400 block mb-1">Confirm Password:</label>
+                    <input type="password" id="reg-confirm-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="text-zinc-400 block mb-1">Referral Code (Optional):</label>
+                    <input type="text" id="reg-ref" placeholder="Enter referral code" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="text-zinc-400 block mb-1">Captcha Verification:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="reg-captcha-input" placeholder="Enter captcha" class="w-2/3 bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500">
+                        <div onclick="generateCaptcha()" id="captcha-box" class="w-1/3 bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 font-mono font-black text-sm rounded-xl flex items-center justify-center tracking-widest cursor-pointer select-none" title="Click to refresh">4892</div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="handleRegister()" class="w-full gold-gradient text-zinc-950 font-bold py-3 rounded-xl text-sm shadow cursor-pointer hover:opacity-90 transition">Create Account 🚀</button>
+            
+            <div class="text-center pt-2">
+                <button onclick="toggleAuth(true)" class="text-xs text-yellow-400 hover:underline cursor-pointer">Already have an account? Login</button>
+            </div>
+        </div>
+
+        <!-- 🔑 واجهة تسجيل الدخول (Login) -->
+        <div id="box-login" class="hidden bg-zinc-900/90 border border-yellow-600/40 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="text-center mb-3">
+                <div class="w-14 h-14 rounded-full gold-gradient flex items-center justify-center font-black text-zinc-950 text-2xl mx-auto shadow-md border border-yellow-400 mb-2">🏯</div>
+                <h2 class="text-lg font-bold gold-text">Login - Crypto China</h2>
+                <p class="text-xs text-zinc-400">Welcome back to digital trading</p>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="text-zinc-400 block mb-1">Email or Phone Number:</label>
+                    <input type="text" id="login-identity" placeholder="example@gmail.com..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="text-zinc-400 block mb-1">Password:</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="text-zinc-400 block mb-1">Captcha Verification:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="login-captcha-input" placeholder="Enter captcha" class="w-2/3 bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yellow-500">
+                        <div onclick="generateLoginCaptcha()" id="login-captcha-box" class="w-1/3 bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 font-mono font-black text-sm rounded-xl flex items-center justify-center tracking-widest cursor-pointer select-none" title="Click to refresh">7315</div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="handleLogin()" class="w-full gold-gradient text-zinc-950 font-bold py-3 rounded-xl text-sm shadow cursor-pointer hover:opacity-90 transition">Login 🔐</button>
+            
+            <div class="text-center pt-2">
+                <button onclick="toggleAuth(false)" class="text-xs text-yellow-400 hover:underline cursor-pointer">Don't have an account? Register</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCaptcha = "";
+        let currentLoginCaptcha = "";
+
+        function generateCaptcha() {
+            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            currentCaptcha = "";
+            for (let i = 0; i < 4; i++) { 
+                currentCaptcha += chars.charAt(Math.floor(Math.random() * chars.length)); 
+            }
+            document.getElementById('captcha-box').innerText = currentCaptcha;
+        }
+
+        function generateLoginCaptcha() {
+            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            currentLoginCaptcha = "";
+            for (let i = 0; i < 4; i++) { 
+                currentLoginCaptcha += chars.charAt(Math.floor(Math.random() * chars.length)); 
+            }
+            document.getElementById('login-captcha-box').innerText = currentLoginCaptcha;
+        }
+
+        function toggleAuth(showLogin) {
+            document.getElementById('box-register').classList.toggle('hidden', showLogin);
+            document.getElementById('box-login').classList.toggle('hidden', !showLogin);
+        }
+
+        function handleRegister() {
+            const identity = document.getElementById('reg-identity').value.trim();
+            const pass = document.getElementById('reg-pass').value;
+            const confirmPass = document.getElementById('reg-confirm-pass').value;
+            const userCaptcha = document.getElementById('reg-captcha-input').value.trim().toUpperCase();
+
+            if (!identity) { alert('Please enter email or phone number'); return; }
+            if (!pass || pass.length < 6) { alert('Password must be at least 6 characters'); return; }
+            if (pass !== confirmPass) { alert('Passwords do not match'); return; }
+            if (userCaptcha !== currentCaptcha) { alert('Incorrect Captcha!'); generateCaptcha(); return; }
+
+            // حفظ حالة الدخول وضبط الرصيد عند 0.00$
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("userAccount", identity);
+            localStorage.setItem("userBalance", "0.00");
+
+            alert('Account created successfully! Welcome to Crypto China 🎉');
+            window.location.href = "home.html";
+        }
+
+        function handleLogin() {
+            const identity = document.getElementById('login-identity').value.trim();
+            const pass = document.getElementById('login-pass').value;
+            const userCaptcha = document.getElementById('login-captcha-input').value.trim().toUpperCase();
+
+            if (!identity || !pass) { alert('Please enter complete login details'); return; }
+            if (userCaptcha !== currentLoginCaptcha) { alert('Incorrect Captcha!'); generateLoginCaptcha(); return; }
+
+            // تفعيل حالة الدخول
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("userAccount", identity);
+            if (!localStorage.getItem("userBalance")) {
+                localStorage.setItem("userBalance", "0.00");
+            }
+
+            alert('Login successful! Welcome back 🌟');
+            window.location.href = "home.html";
+        }
+
+        window.onload = () => {
+            generateCaptcha();
+            generateLoginCaptcha();
+        };
+    </script>
+</body>
+</html>

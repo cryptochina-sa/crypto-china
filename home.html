@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto China | Digital Trading Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .gold-gradient { background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); }
+        .gold-text { background: linear-gradient(135deg, #BF953F, #FCF6BA, #FBF5B7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .wheel-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+        }
+        .wheel-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 6px solid #D4AF37;
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.15, 0.99, 0.35, 1);
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.4);
+            background: #111;
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 26px solid #fef08a;
+            z-index: 40;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.7));
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col items-center pb-28">
+    <!-- شريط العرض العلوي -->
+    <header class="w-full max-w-md bg-zinc-900 border-b border-yellow-600/30 p-3 flex justify-between items-center shadow-lg sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-full gold-gradient flex items-center justify-center font-black text-zinc-950 text-lg shadow-md border border-yellow-400">🏯</div>
+            <div>
+                <h1 id="t-brand-title" class="font-bold text-sm gold-text tracking-wide leading-none">Crypto China</h1>
+                <span class="text-[9px] text-zinc-400">🇨🇳 Digital Trading App</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+            <button onclick="switchTab('tab-messages', document.querySelectorAll('.nav-btn')[6])" class="relative bg-zinc-800 hover:bg-zinc-700 text-yellow-400 p-2 rounded-lg border border-yellow-600/40 transition cursor-pointer flex items-center justify-center text-sm" title="Notifications">
+                🔔
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
+            </button>
+            <!-- قائمة اللغات الست كاملة -->
+            <select id="language-selector" onchange="changeLanguage(this.value)" class="bg-zinc-950 border border-yellow-600/40 text-yellow-400 text-[11px] rounded-lg px-2 py-1.5 focus:outline-none cursor-pointer">
+                <option value="en">🇬🇧 English</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="ar">🇸🇦 العربية</option>
+                <option value="zh">🇨🇳 中文</option>
+                <option value="tr">🇹🇷 Türkçe</option>
+                <option value="pt">🇧🇷 Português</option>
+            </select>
+            <button onclick="logoutUser()" class="text-[11px] bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-700/50 px-2 py-1.5 rounded-lg transition cursor-pointer font-bold">Logout</button>
+        </div>
+    </header>
+
+    <!-- المحتوى الأساسي -->
+    <main class="w-full max-w-md p-4 flex flex-col gap-5">
+        <!-- 1. الشاشة الرئيسية -->
+        <div id="tab-home" class="tab-content flex flex-col gap-5">
+            <!-- أزرار الأيقونات السريعة -->
+            <div class="grid grid-cols-5 gap-1.5 bg-zinc-900/90 border border-yellow-600/30 p-3 rounded-2xl text-center shadow-lg">
+                <button onclick="openDepositModal()" class="flex flex-col items-center gap-1 hover:opacity-80 transition cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-lg">📥</div>
+                    <span id="t-quick-deposit" class="text-[10px] font-bold text-zinc-300">Deposit</span>
+                </button>
+                <button onclick="openWithdrawModal()" class="flex flex-col items-center gap-1 hover:opacity-80 transition cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-lg">📤</div>
+                    <span id="t-quick-withdraw" class="text-[10px] font-bold text-zinc-300">Withdraw</span>
+                </button>
+                <button onclick="switchTab('tab-invite', document.querySelectorAll('.nav-btn')[1])" class="flex flex-col items-center gap-1 hover:opacity-80 transition cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-lg">👥</div>
+                    <span id="t-quick-invite" class="text-[10px] font-bold text-zinc-300">Invite</span>
+                </button>
+                <button onclick="alert('Preparing CryptoChina.apk package for download...')" class="flex flex-col items-center gap-1 hover:opacity-80 transition cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-lg">🤖</div>
+                    <span class="text-[10px] font-bold text-zinc-300">Android</span>
+                </button>
+                <button onclick="alert('For iOS: Tap the share button in your browser and select (Add to Home Screen)')" class="flex flex-col items-center gap-1 hover:opacity-80 transition cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-lg">🍎</div>
+                    <span class="text-[10px] font-bold text-zinc-300">iOS</span>
+                </button>
+            </div>
+
+            <!-- بطاقة المحفظة والرصيد -->
+            <div class="bg-gradient-to-br from-zinc-900 via-zinc-900 to-yellow-950/40 border border-yellow-600/40 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="current-vip-badge" class="text-xs text-yellow-500 font-semibold bg-yellow-500/10 px-2.5 py-1 rounded-full border border-yellow-500/20">Current Level: VIP 0</span>
+                    <span class="text-xs text-zinc-400">USDT / Crypto</span>
+                </div>
+                <div id="t-total-balance-label" class="text-xs text-zinc-400">Total Digital Balance</div>
+                <div class="text-3xl font-black gold-text mb-1" id="user-balance">$3.00</div>
+                <div class="text-[11px] text-emerald-400 font-bold mb-4" id="daily-earning-text">Daily Earning (3%): $0.09</div>
+                
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800">
+                    <button onclick="openDepositModal()" id="t-btn-deposit" class="gold-gradient text-zinc-950 font-bold py-2.5 rounded-xl text-sm shadow-md hover:opacity-90 transition flex items-center justify-center gap-1 cursor-pointer">
+                        📥 Deposit
+                    </button>
+                    <button onclick="openWithdrawModal()" id="t-btn-withdraw" class="bg-zinc-800 hover:bg-zinc-700 text-yellow-400 border border-yellow-600/40 font-bold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-1 cursor-pointer">
+                        📤 Withdrawal
+                    </button>
+                </div>
+            </div>
+
+            <!-- عجلة الحظ الفخمة -->
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-4 shadow-md text-center">
+                <h2 id="t-wheel-title" class="font-bold text-sm text-yellow-400 mb-1">🎡 Crypto China Luxury Wheel</h2>
+                <p id="t-wheel-desc" class="text-[11px] text-zinc-400 mb-3">Every member gets one free spin:</p>
+                <div class="wheel-container mb-4">
+                    <div class="wheel-pointer"></div>
+                    <div class="wheel-circle" id="interactive-wheel">
+                        <svg viewBox="0 0 320 320" class="w-full h-full">
+                            <g transform="translate(160,160)">
+                                <path d="M0,0 L0,-160 A160,160 0 0,1 116.3,-110 L0,0" fill="#78350f" stroke="#D4AF37" stroke-width="2"/>
+                                <g transform="rotate(25.7) translate(0, -100) rotate(-25.7)"><image href="https://cdn-icons-png.flaticon.com/512/553/553416.png" x="-16" y="-22" width="32" height="32"/><text x="0" y="20" fill="#fef08a" font-size="11" font-weight="bold" text-anchor="middle" font-family="Cairo" class="wheel-text-1">$1</text></g>
+                                <path d="M0,0 L116.3,-110 A160,160 0 0,1 159.3,15.6 L0,0" fill="#1e293b" stroke="#D4AF37" stroke-width="2"/>
+                                <g transform="rotate(77.1) translate(0, -100) rotate(-77.1)"><image href="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" x="-16" y="-22" width="32" height="32"/><text x="0" y="20" fill="#fef08a" font-size="11" font-weight="bold" text-anchor="middle" font-family="Cairo" class="wheel-text-5">$5</text></g>
+                                <path d="M0,0 L159.3,15.6 A160,160 0 0,1 92.4,130.6 L0,0" fill="#b45309" stroke="#D4AF37" stroke-width="2"/>
+                                <g transform="rotate(128.5) translate(0, -100) rotate(-128.5)"><image href="https://cdn-icons-png.flaticon.com/512/10360/10360292.png" x="-16" y="-22" width="32" height="32"/><text x="0" y="20" fill="#fef08a" font-size="10" font-weight="bold" text-anchor="middle" font-family="Cairo" class="wheel-text-cent">$0.60</text></g>
+                                <path d="M0,0 L92.4,130.6 A160,160 0 0,1 -27.8,157.6 L0,0" fill="#0f172a" stroke="#D4AF37" stroke-width="2"/>
+                                <g transform="rotate(180) translate(0, -100) rotate(-180)"><image href="https://cdn-icons-png.flaticon.com/512/2935/2935319.png" x="-16" y="-22" width="32" height="32"/><text x="0" y="20" fill="#fef08a" font-size="9" font-weight="bold" text-anchor="middle" font-family="Cairo" class="wheel-text-coffee">Coffee</text></g>
+                                <path d="M0,0 L-27.8,157.6 A160,160 0 0,1 -138,-80.7 L0,0" fill="#854d0e" stroke="#D4AF37" stroke-width="2"/>
+                                <g transform="rotate(231.4) translate(0, -100) rotate(-231.4)"><image href="https://cdn-icons-png.flaticon.com/512/15/15874.png" x="-16" y="-22" width="32" height="32"/><text x="0" y="20" fill="#fef08a" font-size="10" font-weight="bold" text-anchor="middle" font-family="Cairo" class="wheel-text-phone">Phone</text></g>
+                                <path d="M0,0 L-138,-80.7 A160,160 0 0,1 -107.5,-118.6 L0,0" fill="#1e293b" stroke="#D4AF37" stroke-width="2"/>
+                                <g transform="rotate(282.8) translate(0, -100) rotate(-282.8)"><image href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png" x="-16" y="-22" width="32" height="32"/><text x="0" y="20" fill="#fef08a" font-size="10" font-weight="bold" text-anchor="middle" font-family="Cairo" class="wheel-text-100">$100</text></g>
+                                <path d="M0,0 L-107.5,-118.6 A160,160 0 0,1 0,-160 L0,0" fill="#ca8a04" stroke="#D4AF37" stroke-width="2"/>
+                                <g transform="rotate(334.2) translate(0, -100) rotate(-334.2)"><image href="https://cdn-icons-png.flaticon.com/512/2489/2489756.png" x="-16" y="-22" width="32" height="32"/><text x="0" y="20" fill="#fef08a" font-size="10" font-weight="bold" text-anchor="middle" font-family="Cairo" class="wheel-text-1000">$1000</text></g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <button id="spin-btn" onclick="spinWheelAction()" class="gold-gradient text-zinc-950 font-bold px-6 py-2.5 rounded-xl text-xs shadow-lg hover:brightness-110 transition cursor-pointer">
+                    Spin the Wheel Now 🎁
+                </button>
+            </div>
+
+            <!-- المهام اليومية -->
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-4 shadow-md">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 id="t-task-title" class="font-bold text-sm text-yellow-400 flex items-center gap-1.5">📈 Daily Trading Task</h2>
+                    <span id="t-task-badge" class="text-[10px] text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">Every 24h</span>
+                </div>
+                <p id="t-task-desc" class="text-xs text-zinc-400 mb-3">Execute your daily automated trade and get a 3% instant return.</p>
+                <button onclick="startDailyTask()" id="t-task-btn" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-zinc-950 font-bold py-2.5 rounded-xl text-sm shadow cursor-pointer">
+                    🚀 Start Daily Task (+3%)
+                </button>
+            </div>
+
+            <!-- 📊 المنصات والمحافظ المدعومة -->
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-4 shadow-xl">
+                <h2 id="t-partners-title" class="font-bold text-sm gold-text mb-1 flex items-center gap-1.5">📊 Supported Trading & Forex Platforms</h2>
+                <p id="t-partners-desc" class="text-[11px] text-zinc-400 mb-4">Deposit and withdraw directly across all crypto and forex platforms:</p>
+                <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png" class="w-8 h-8 rounded-full"><span class="font-bold text-zinc-200 text-[11px]">Binance</span><span class="text-[9px] text-yellow-500">Crypto</span></div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://assets.coingecko.com/coins/images/22335/small/okb_token_logo.png" class="w-8 h-8 rounded-full bg-white p-0.5"><span class="font-bold text-zinc-200 text-[11px]">OKX</span><span class="text-[9px] text-yellow-500">Exchange</span></div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://s2.coinmarketcap.com/static/img/exchanges/64x64/521.png" class="w-8 h-8 rounded-full"><span class="font-bold text-zinc-200 text-[11px]">Bybit</span><span class="text-[9px] text-yellow-500">Global</span></div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://assets.coingecko.com/coins/images/1047/small/kucoin-shares.png" class="w-8 h-8 rounded-full"><span class="font-bold text-zinc-200 text-[11px]">KuCoin</span><span class="text-[9px] text-yellow-500">Crypto</span></div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://cdn-icons-png.flaticon.com/512/2533/2533282.png" class="w-8 h-8 rounded-full"><span class="font-bold text-zinc-200 text-[11px]">MetaTrader 5</span><span class="text-[9px] text-emerald-400">Forex</span></div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" class="w-8 h-8 rounded-full bg-yellow-500 p-1"><span class="font-bold text-zinc-200 text-[11px]">Exness</span><span class="text-[9px] text-emerald-400">Forex</span></div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://assets.coingecko.com/coins/images/11085/small/Trust.png" class="w-8 h-8 rounded-full"><span class="font-bold text-zinc-200 text-[11px]">Trust Wallet</span><span class="text-[9px] text-sky-400">Web3</span></div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-8 h-8 rounded-full"><span class="font-bold text-zinc-200 text-[11px]">MetaMask</span><span class="text-[9px] text-sky-400">Wallet</span></div>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex flex-col items-center justify-center gap-1.5"><img src="https://cdn-icons-png.flaticon.com/512/3309/3309990.png" class="w-8 h-8 rounded-full"><span class="font-bold text-zinc-200 text-[11px]">XM Broker</span><span class="text-[9px] text-emerald-400">Forex</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. صفحة الدعوة -->
+        <div id="tab-invite" class="tab-content hidden flex flex-col gap-4">
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-5 shadow-md space-y-4 text-left">
+                <h2 id="t-invite-main-title" class="font-bold text-base gold-text mb-1">👥 3-Tier Referral System</h2>
+                <p id="t-invite-main-desc" class="text-xs text-zinc-400">Level 1: 15% | Level 2: 5% | Level 3: 1% (Plus 3% signup bonus for new members).</p>
+                <div class="flex flex-col gap-1.5">
+                    <span id="t-label-code" class="text-[11px] text-yellow-400 font-bold">Personal Referral Code:</span>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                        <span id="user-ref-code" class="gold-text font-black font-mono text-sm">CHINA-88291</span>
+                        <button onclick="copyUserCode()" id="t-copy-code" class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Copy</button>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <span id="t-label-link" class="text-[11px] text-yellow-400 font-bold">Personal Referral Link:</span>
+                    <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                        <span id="user-ref-link" class="text-zinc-300 select-all font-mono truncate max-w-[210px]">https://mie63de.com/ref/CHINA-88291</span>
+                        <button onclick="copyUserLink()" id="t-copy-link" class="gold-text font-bold px-3 py-1.5 bg-yellow-500/10 rounded-lg border border-yellow-500/20 cursor-pointer text-xs">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. صفحة الفريق -->
+        <div id="tab-team" class="tab-content hidden flex flex-col gap-4">
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-5 shadow-md text-left">
+                <h2 id="t-team-title" class="font-bold text-base gold-text mb-2">👥 Team Statistics & Commissions</h2>
+                <p id="t-team-desc" class="text-xs text-zinc-400 mb-4">Track your direct and indirect members:</p>
+                <div class="grid grid-cols-2 gap-3 text-center text-xs mb-3">
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-800"><span id="t-team-direct" class="text-zinc-400 block text-[10px]">Direct Members</span><span id="direct-count-display" class="text-lg font-bold text-yellow-400">0</span></div>
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-800"><span id="t-team-indirect" class="text-zinc-400 block text-[10px]">Indirect Members</span><span id="indirect-count-display" class="text-lg font-bold text-yellow-400">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. المستويات من 1 إلى 10 كاملة -->
+        <div id="tab-vip" class="tab-content hidden flex flex-col gap-4">
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-4 shadow-md text-left">
+                <h2 id="t-vip-header" class="font-bold text-base gold-text mb-1">⭐ VIP Levels (1 to 10)</h2>
+                <p id="t-vip-sub" class="text-xs text-zinc-400 mb-3">Click on the level for instant activation:</p>
+                <div class="space-y-2 text-xs">
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-yellow-600/40 flex justify-between items-center"><div><span class="font-bold text-yellow-400 block">VIP 1</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $0.30</span></div><button onclick="directActivateVIP(1, 10)" class="gold-text font-black text-sm border border-yellow-600/30 px-3 py-1 rounded-lg cursor-pointer">Activate $10</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span class="font-bold text-zinc-200 block">VIP 2</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $1.50</span></div><button onclick="directActivateVIP(2, 50)" class="text-yellow-400 font-bold text-sm border border-zinc-800 px-3 py-1 rounded-lg cursor-pointer">Activate $50</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span class="font-bold text-zinc-200 block">VIP 3</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $3.00</span></div><button onclick="directActivateVIP(3, 100)" class="text-yellow-400 font-bold text-sm border border-zinc-800 px-3 py-1 rounded-lg cursor-pointer">Activate $100</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span class="font-bold text-zinc-200 block">VIP 4</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $6.00</span></div><button onclick="directActivateVIP(4, 200)" class="text-yellow-400 font-bold text-sm border border-zinc-800 px-3 py-1 rounded-lg cursor-pointer">Activate $200</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span class="font-bold text-zinc-200 block">VIP 5</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $15.00</span></div><button onclick="directActivateVIP(5, 500)" class="text-yellow-400 font-bold text-sm border border-zinc-800 px-3 py-1 rounded-lg cursor-pointer">Activate $500</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span class="font-bold text-zinc-200 block">VIP 6</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $30.00</span></div><button onclick="directActivateVIP(6, 1000)" class="text-yellow-400 font-bold text-sm border border-zinc-800 px-3 py-1 rounded-lg cursor-pointer">Activate $1,000</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span class="font-bold text-zinc-200 block">VIP 7</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $75.00</span></div><button onclick="directActivateVIP(7, 2500)" class="text-yellow-400 font-bold text-sm border border-zinc-800 px-3 py-1 rounded-lg cursor-pointer">Activate $2,500</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span class="font-bold text-zinc-200 block">VIP 8</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $150.00</span></div><button onclick="directActivateVIP(8, 5000)" class="text-yellow-400 font-bold text-sm border border-zinc-800 px-3 py-1 rounded-lg cursor-pointer">Activate $5,000</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span class="font-bold text-zinc-200 block">VIP 9</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $225.00</span></div><button onclick="directActivateVIP(9, 7500)" class="text-yellow-400 font-bold text-sm border border-zinc-800 px-3 py-1 rounded-lg cursor-pointer">Activate $7,500</button></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-yellow-600/40 flex justify-between items-center"><div><span class="font-bold text-yellow-400 block">VIP 10</span><span class="text-[10px] text-zinc-400">Daily Return (3%): $300.00</span></div><button onclick="directActivateVIP(10, 10000)" class="gold-text font-black text-sm border border-yellow-600/30 px-3 py-1 rounded-lg cursor-pointer">Activate $10,000</button></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. الوظائف كاملة -->
+        <div id="tab-jobs" class="tab-content hidden flex flex-col gap-4">
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-4 shadow-md text-left">
+                <h2 id="t-jobs-title" class="font-bold text-base gold-text mb-1">💼 Jobs & Monthly Salaries</h2>
+                <p id="t-jobs-sub" class="text-xs text-zinc-400 mb-3">Fixed monthly salaries based on direct and indirect team members:</p>
+                <div class="space-y-2.5 text-xs">
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span id="t-job-1" class="font-bold text-yellow-400 block">Supervisor (6 Direct + 4 Indirect)</span><span class="text-[10px] text-emerald-400">Salary: $50</span></div><span id="job-status-10" class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded-lg">Pending</span></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span id="t-job-2" class="font-bold text-zinc-200 block">Group Leader (12 Direct + 8 Indirect)</span><span class="text-[10px] text-emerald-400">Salary: $100</span></div><span id="job-status-20" class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded-lg">Pending</span></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span id="t-job-3" class="font-bold text-zinc-200 block">Dev Manager (18 Direct + 12 Indirect)</span><span class="text-[10px] text-emerald-400">Salary: $300</span></div><span id="job-status-30" class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded-lg">Pending</span></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center"><div><span id="t-job-4" class="font-bold text-zinc-200 block">Executive (30 Direct + 20 Indirect)</span><span class="text-[10px] text-emerald-400">Salary: $500</span></div><span id="job-status-50" class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded-lg">Pending</span></div>
+                    <div class="p-3 bg-zinc-950 rounded-xl border border-yellow-600/40 flex justify-between items-center"><div><span id="t-job-5" class="font-bold text-yellow-400 block">Ambassador (60 Direct + 40 Indirect)</span><span class="text-[10px] text-emerald-400">Salary: $800</span></div><span id="job-status-100" class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded-lg">Pending</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. المهام -->
+        <div id="tab-tasks" class="tab-content hidden flex flex-col gap-4">
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-5 shadow-md text-left">
+                <h2 id="t-tasks-page-title" class="font-bold text-base gold-text mb-2">📋 Required Daily Tasks</h2>
+                <p id="t-tasks-page-desc" class="text-xs text-zinc-400 mb-4">Execute the daily electronic trading deal to collect your 3% profit.</p>
+                <button onclick="startDailyTask()" id="t-tasks-page-btn" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-zinc-950 font-bold py-3 rounded-xl text-sm shadow cursor-pointer">🚀 Execute All Tasks Now (+3%)</button>
+            </div>
+        </div>
+
+        <!-- 7. الملف الشخصي -->
+        <div id="tab-profile" class="tab-content hidden flex flex-col gap-4">
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-5 shadow-md text-left">
+                <h2 id="t-profile-title" class="font-bold text-base gold-text mb-3">👤 Profile Settings</h2>
+                <div class="space-y-3 text-xs">
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex justify-between items-center">
+                        <span id="t-profile-status-label" class="text-zinc-400">Account Status</span>
+                        <span class="text-emerald-400 font-bold" id="profile-vip-status">Active (VIP 0)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. الرسائل -->
+        <div id="tab-messages" class="tab-content hidden flex flex-col gap-4">
+            <div class="bg-zinc-900/90 border border-yellow-600/30 rounded-2xl p-5 shadow-md space-y-3 text-left">
+                <h2 id="t-msg-main-title" class="font-bold text-base gold-text mb-1">🔔 Notifications & Admin Messages</h2>
+                <p id="t-msg-main-desc" class="text-xs text-zinc-400 mb-3">Here you will find all official notifications sent from the management:</p>
+                <div class="bg-zinc-950 p-3 rounded-xl border border-yellow-600/30 space-y-1">
+                    <div class="flex justify-between items-center"><span class="font-bold text-yellow-400 text-xs">🎉 Welcome Bonus</span><span class="text-[9px] text-zinc-500">2026-10-11</span></div>
+                    <p class="text-[11px] text-zinc-300">A signup bonus of $3.00 has been successfully added to your welcoming balance. Start tasks now!</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- شريط التنقل السفلي -->
+    <nav class="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto bg-zinc-900/95 backdrop-blur-md border-t border-yellow-600/30 p-1 flex justify-between items-center z-50 text-center">
+        <button onclick="switchTab('tab-home', this)" class="nav-btn text-yellow-400 font-bold flex flex-col items-center gap-0.5 cursor-pointer flex-1"><span class="text-sm">🏠</span><span id="nav-home" class="text-[8px]">Home</span></button>
+        <button onclick="switchTab('tab-invite', this)" class="nav-btn text-zinc-400 font-medium hover:text-yellow-400 flex flex-col items-center gap-0.5 cursor-pointer flex-1"><span class="text-sm">🎁</span><span id="nav-invite" class="text-[8px]">Invite</span></button>
+        <button onclick="switchTab('tab-team', this)" class="nav-btn text-zinc-400 font-medium hover:text-yellow-400 flex flex-col items-center gap-0.5 cursor-pointer flex-1"><span class="text-sm">👥</span><span id="nav-team" class="text-[8px]">Team</span></button>
+        <button onclick="switchTab('tab-vip', this)" class="nav-btn text-zinc-400 font-medium hover:text-yellow-400 flex flex-col items-center gap-0.5 cursor-pointer flex-1"><span class="text-sm">⭐</span><span id="nav-vip" class="text-[8px]">VIP</span></button>
+        <button onclick="switchTab('tab-jobs', this)" class="nav-btn text-zinc-400 font-medium hover:text-yellow-400 flex flex-col items-center gap-0.5 cursor-pointer flex-1"><span class="text-sm">💼</span><span id="nav-jobs" class="text-[8px]">Jobs</span></button>
+        <button onclick="switchTab('tab-tasks', this)" class="nav-btn text-zinc-400 font-medium hover:text-yellow-400 flex flex-col items-center gap-0.5 cursor-pointer flex-1"><span class="text-sm">📋</span><span id="nav-tasks" class="text-[8px]">Tasks</span></button>
+        <button onclick="switchTab('tab-profile', this)" class="nav-btn text-zinc-400 font-medium hover:text-yellow-400 flex flex-col items-center gap-0.5 cursor-pointer flex-1"><span class="text-sm">👤</span><span id="nav-profile" class="text-[8px]">Profile</span></button>
+        <a href="https://t.me/CRIYPTOCHINA" target="_blank" class="flex flex-col items-center gap-0.5 text-sky-400 font-medium hover:opacity-80 transition flex-1"><span class="text-sm">✈️</span><span id="nav-tg" class="text-[8px]">Telegram</span></a>
+    </nav>
+
+    <!-- نافذة الإيداع الشاملة مع جميع المحافظ المعتمدة ومربع الإيداع -->
+    <div id="deposit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 border border-yellow-600/40 rounded-2xl p-5 w-full max-w-sm text-left shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 id="t-dep-title" class="text-base font-bold gold-text">📥 Approved Deposit Wallets</h3>
+                <button onclick="closeDepositModal()" class="text-zinc-400 hover:text-white font-bold cursor-pointer">✕</button>
+            </div>
+            
+            <p class="text-[11px] text-zinc-400">Transfer USDT to one of the following official addresses, then enter the amount to update your balance:</p>
+
+            <div class="space-y-3 text-xs">
+                <!-- محفظة Solana -->
+                <div class="bg-zinc-950 border border-yellow-600/30 p-2.5 rounded-xl">
+                    <span class="text-[10px] text-yellow-500 font-bold block mb-1">Solana (SOL / USDT-SPL):</span>
+                    <div class="font-mono text-[10px] text-zinc-300 break-all select-all bg-zinc-900 p-1.5 rounded border border-zinc-800 mb-1" id="sol-addr">HQUhqT5nWdAZb7YnyFi2DKEsNzDvXhfdXjQT37kQQKK2</div>
+                    <button onclick="copyAddress('sol-addr')" class="text-[10px] gold-gradient text-zinc-950 font-bold px-2.5 py-1 rounded cursor-pointer">Copy Solana Address</button>
+                </div>
+
+                <!-- محفظة USDT TRC20 -->
+                <div class="bg-zinc-950 border border-yellow-600/30 p-2.5 rounded-xl">
+                    <span class="text-[10px] text-yellow-500 font-bold block mb-1">USDT (TRC20):</span>
+                    <div class="font-mono text-[10px] text-zinc-300 break-all select-all bg-zinc-900 p-1.5 rounded border border-zinc-800 mb-1" id="trc20-addr">TJ2x7pQvKmNsW1YZaBbYvQ9L71x9mX32pA</div>
+                    <button onclick="copyAddress('trc20-addr')" class="text-[10px] gold-gradient text-zinc-950 font-bold px-2.5 py-1 rounded cursor-pointer">Copy TRC20 Address</button>
+                </div>
+
+                <!-- محفظة BEP20 -->
+                <div class="bg-zinc-950 border border-yellow-600/30 p-2.5 rounded-xl">
+                    <span class="text-[10px] text-yellow-500 font-bold block mb-1">Binance Smart Chain (BEP20):</span>
+                    <div class="font-mono text-[10px] text-zinc-300 break-all select-all bg-zinc-900 p-1.5 rounded border border-zinc-800 mb-1" id="bep20-addr">0x71c89f0293b91fa278db02b9e281561081a9415c</div>
+                    <button onclick="copyAddress('bep20-addr')" class="text-[10px] gold-gradient text-zinc-950 font-bold px-2.5 py-1 rounded cursor-pointer">Copy BEP20 Address</button>
+                </div>
+
+                <div class="pt-2 border-t border-zinc-800">
+                    <label class="text-[11px] text-zinc-300 block mb-1">Enter Transferred Amount ($):</label>
+                    <input type="number" id="input-deposit-amount" placeholder="e.g. 50" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-yellow-500 mb-2">
+                    <button onclick="submitDeposit()" class="w-full gold-gradient text-zinc-950 font-bold py-2.5 rounded-xl text-xs cursor-pointer shadow hover:opacity-90">Confirm Deposit 📥</button>
+                </div>
+            </div>
+            <button onclick="closeDepositModal()" id="t-dep-cancel" class="w-full text-zinc-400 text-xs py-1 text-center cursor-pointer">Cancel</button>
+        </div>
+    </div>
+
+    <!-- نافذة السحب الشغالة بالكامل مع الحساب والعمولة والخصم -->
+    <div id="withdraw-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 border border-yellow-600/40 rounded-2xl p-5 w-full max-w-xs text-left shadow-2xl space-y-3">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 id="t-with-title" class="text-base font-bold gold-text">📤 Withdrawal Request</h3>
+                <button onclick="closeWithdrawModal()" class="text-zinc-400 hover:text-white font-bold cursor-pointer">✕</button>
+            </div>
+
+            <div class="text-xs bg-zinc-950 p-2.5 rounded-xl border border-zinc-800">
+                <span id="t-with-balance" class="text-zinc-400 block">Available Balance:</span>
+                <span id="modal-available-balance" class="text-base font-bold gold-text">$3.00</span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div>
+                    <label class="text-[11px] text-zinc-400 block mb-1">Withdrawal Amount ($):</label>
+                    <input type="number" id="withdraw-amount-input" oninput="calculateWithdrawFee()" placeholder="Min $3.00" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="text-[11px] text-zinc-400 block mb-1">USDT Wallet Address:</label>
+                    <input type="text" id="withdraw-address-input" placeholder="TRC20 / BEP20 Address..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="text-[11px] text-zinc-400 block mb-1">Fund Password / PIN:</label>
+                    <input type="password" id="withdraw-fund-password" placeholder="••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-yellow-500">
+                </div>
+
+                <div id="withdraw-fee-box" class="bg-zinc-950 p-2 rounded-lg text-[10px] space-y-1 text-zinc-400">
+                    <div class="flex justify-between"><span>Fee (10%):</span><span id="fee-text">$0.00</span></div>
+                    <div class="flex justify-between font-bold text-yellow-400"><span>You will receive:</span><span id="net-receive-text">$0.00</span></div>
+                </div>
+            </div>
+
+            <button onclick="submitWithdraw()" id="t-with-submit" class="w-full gold-gradient text-zinc-950 font-bold py-2.5 rounded-xl text-xs cursor-pointer shadow hover:opacity-90">Submit to Management 📩</button>
+            <button onclick="closeWithdrawModal()" id="t-with-cancel" class="w-full text-zinc-400 text-xs py-1 text-center cursor-pointer">Cancel</button>
+        </div>
+    </div>
+
+    <!-- الدوال البرمجية ونظام اللغات بالكامل -->
+    <script>
+        let currentBalance = parseFloat(localStorage.getItem("userBalance")) || 3.00;
+        let currentVIPLevel = parseInt(localStorage.getItem("userVIP")) || 0;
+        let directMembers = parseInt(localStorage.getItem("directMembers")) || 0;    
+        let indirectMembers = parseInt(localStorage.getItem("indirectMembers")) || 0;  
+        let hasSpunWheel = localStorage.getItem("hasSpunWheel") === "true";
+        let taskCooldownTime = parseInt(localStorage.getItem("taskCooldownTime")) || 0;
+        let taskTimerInterval = null;
+
+        const userReferralCode = localStorage.getItem("userRefCode") || ("CHINA-" + Math.floor(10000 + Math.random() * 90000));
+        localStorage.setItem("userRefCode", userReferralCode);
+        const userReferralLink = "https://mie63de.com/ref/" + userReferralCode;
+
+        const translations = {
+            en: {
+                brand: "Crypto China", deposit: "Deposit", withdraw: "Withdraw", invite: "Invite",
+                totalBalance: "Total Digital Balance", btnDeposit: "📥 Deposit", btnWithdraw: "📤 Withdrawal",
+                wheelTitle: "🎡 Crypto China Luxury Wheel", wheelDesc: "Every member gets one free spin:", spinBtn: "Spin the Wheel Now 🎁",
+                taskTitle: "📈 Daily Trading Task", taskBadge: "Every 24h", taskDesc: "Execute your daily automated trade and get a 3% instant return.", taskBtn: "🚀 Start Daily Task (+3%)",
+                partnersTitle: "📊 Supported Trading & Forex Platforms", partnersDesc: "Deposit and withdraw directly across all crypto and forex platforms:",
+                inviteMainTitle: "👥 3-Tier Referral System", inviteMainDesc: "Level 1: 15% | Level 2: 5% | Level 3: 1% (Plus 3% signup bonus for new members).",
+                labelCode: "Personal Referral Code:", labelLink: "Personal Referral Link:", copyCode: "Copy Code", copyLink: "Copy Link",
+                teamTitle: "👥 Team Statistics & Commissions", teamDesc: "Track your direct and indirect members:",
+                teamDirect: "Direct Members", teamIndirect: "Indirect Members", vipHeader: "⭐ VIP Levels (1 to 10)", vipSub: "Click on the level for instant activation:",
+                jobsTitle: "💼 Jobs & Monthly Salaries", jobsSub: "Fixed monthly salaries based on direct and indirect team members:",
+                job1: "Supervisor (6 Direct + 4 Indirect)", job2: "Group Leader (12 Direct + 8 Indirect)", job3: "Dev Manager (18 Direct + 12 Indirect)", job4: "Executive (30 Direct + 20 Indirect)", job5: "Ambassador (60 Direct + 40 Indirect)",
+                jobStatusDone: "Active ✅", jobStatusPending: "Pending",
+                tasksTitle: "📋 Required Daily Tasks", tasksDesc: "Execute the daily electronic trading deal to collect your 3% profit.", tasksBtn: "🚀 Execute All Tasks Now (+3%)",
+                profileTitle: "👤 Profile Settings", profileStatus: "Account Status",
+                msgMainTitle: "🔔 Notifications & Admin Messages", msgMainDesc: "Here you will find all official notifications sent from the management:",
+                navHome: "Home", navInvite: "Invite", navTeam: "Team", navVip: "VIP", navJobs: "Jobs", navTasks: "Tasks", navProfile: "Profile", navTg: "Telegram",
+                cancel: "Cancel", withTitle: "📤 Withdrawal Request", withBalance: "Available Balance:", withSubmit: "Submit to Management 📩", depTitle: "📥 Approved Deposit Wallets",
+                wheel1: "$1", wheel5: "$5", wheelCent: "$0.60", wheelCoffee: "Coffee", wheelPhone: "Phone", wheel100: "$100", wheel1000: "$1000"
+            },
+            fr: {
+                brand: "Crypto China", deposit: "Dépôt", withdraw: "Retrait", invite: "Inviter",
+                totalBalance: "Solde Total", btnDeposit: "📥 Dépôt", btnWithdraw: "📤 Retrait",
+                wheelTitle: "🎡 Roue de la Fortune", wheelDesc: "Un tour gratuit par membre :", spinBtn: "Tourner la roue 🎁",
+                taskTitle: "📈 Tâche Quotidienne", taskBadge: "24h", taskDesc: "Exécutez votre transaction quotidienne et obtenez 3%.", taskBtn: "🚀 Démarrer la Tâche (+3%)",
+                partnersTitle: "📊 Plateformes de Trading & Forex", partnersDesc: "Déposez et retirez directement sur toutes les plateformes :",
+                inviteMainTitle: "👥 Système de Parrainage", inviteMainDesc: "Niveau 1: 15% | Niveau 2: 5% | Niveau 3: 1% (+3% bonus d'inscription).",
+                labelCode: "Code de Parrainage :", labelLink: "Lien de Parrainage :", copyCode: "Copier", copyLink: "Copier",
+                teamTitle: "👥 Statistiques de l'Équipe", teamDesc: "Suivez vos membres :",
+                teamDirect: "Membres Directs", teamIndirect: "Membres Indirects", vipHeader: "⭐ Niveaux VIP (1 à 10)", vipSub: "Activation instantanée :",
+                jobsTitle: "💼 Emplois & Salaires Mensuels", jobsSub: "Salaires fixes basés sur les membres de l'équipe :",
+                job1: "Superviseur (6 Dir + 4 Indir)", job2: "Chef (12 Dir + 8 Indir)", job3: "Directeur (18 Dir + 12 Indir)", job4: "Exécutif (30 Dir + 20 Indir)", job5: "Ambassadeur (60 Dir + 40 Indir)",
+                jobStatusDone: "Actif ✅", jobStatusPending: "En attente",
+                tasksTitle: "📋 Tâches Quotidiennes", tasksDesc: "Exécutez la transaction pour percevoir vos 3%.", tasksBtn: "🚀 Exécuter les Tâches (+3%)",
+                profileTitle: "👤 Paramètres", profileStatus: "Statut",
+                msgMainTitle: "🔔 Notifications & Messages", msgMainDesc: "Retrouvez ici toutes les annonces de la direction :",
+                navHome: "Accueil", navInvite: "Inviter", navTeam: "Équipe", navVip: "Niveaux", navJobs: "Emplois", navTasks: "Tâches", navProfile: "Profil", navTg: "Telegram",
+                cancel: "Annuler", withTitle: "📤 Retrait", withBalance: "Solde Disponible :", withSubmit: "Soumettre 📩", depTitle: "📥 Portefeuilles de Dépôt",
+                wheel1: "1 $", wheel5: "5 $", wheelCent: "0,60 $", wheelCoffee: "Café", wheelPhone: "Téléphone", wheel100: "100 $", wheel1000: "1000 $"
+            },
+            ar: {
+                brand: "كريبتو تشاينا", deposit: "إيداع", withdraw: "سحب", invite: "دعوة",
+                totalBalance: "إجمالي الرصيد الرقمي", btnDeposit: "📥 إيداع", btnWithdraw: "📤 سحب",
+                wheelTitle: "🎡 عجلة الحظ الفاخرة", wheelDesc: "يحصل كل عضو على دورة مجانية واحدة:", spinBtn: "أدر العجلة الآن 🎁",
+                taskTitle: "📈 مهمة التداول اليومية", taskBadge: "كل 24 ساعة", taskDesc: "نفّذ صفقة التداول الآلية اليومية واحصل على عائد فوري 3%.", taskBtn: "🚀 بدء المهمة اليومية (+3%)",
+                partnersTitle: "📊 المنصات المدعومة للتداول والفوركس", partnersDesc: "الإيداع والسحب مباشرة عبر جميع منصات العملات المشفرة:",
+                inviteMainTitle: "👥 نظام الإحالة ثلاثي المستويات", inviteMainDesc: "المستوى الأول: 15% | المستوى الثاني: 5% | المستوى الثالث: 1% (+ مكافأة 3%).",
+                labelCode: "رمز الدعوة الشخصي:", labelLink: "رابط الدعوة الشخصي:", copyCode: "نسخ الكود", copyLink: "نسخ الرابط",
+                teamTitle: "👥 إحصائيات الفريق والعمولات", teamDesc: "تتبع الأعضاء المباشرين وغير المباشرين:",
+                teamDirect: "الأعضاء المباشرون", teamIndirect: "الأعضاء غير المباشرين", vipHeader: "⭐ مستويات VIP (من 1 إلى 10)", vipSub: "اضغط على المستوى للتفعيل الفوري:",
+                jobsTitle: "💼 الوظائف والرواتب الشهرية", jobsSub: "رواتب شهرية ثابتة بناءً على أعضاء الفريق:",
+                job1: "مشرف (6 مباشر + 4 غير مباشر)", job2: "قائد مجموعة (12 مباشر + 8 غير مباشر)", job3: "مدير تطوير (18 مباشر + 12 غير مباشر)", job4: "تنفيذي (30 مباشر + 20 غير مباشر)", job5: "سفير (60 مباشر + 40 غير مباشر)",
+                jobStatusDone: "نشط ✅", jobStatusPending: "قيد الانتظار",
+                tasksTitle: "📋 المهام اليومية المطلوبة", tasksDesc: "نفذ الصفقة لجمع أرباحك اليومية 3%.", tasksBtn: "🚀 تنفيذ جميع المهام الآن (+3%)",
+                profileTitle: "👤 إعدادات الملف الشخصي", profileStatus: "حالة الحساب",
+                msgMainTitle: "🔔 الإشعارات ورسائل الإدارة", msgMainDesc: "ستجد هنا جميع الإشعارات والرسائل الرسمية:",
+                navHome: "الرئيسية", navInvite: "دعوة", navTeam: "الفريق", navVip: "VIP", navJobs: "وظائف", navTasks: "مهام", navProfile: "حسابي", navTg: "تيليجرام",
+                cancel: "إلغاء", withTitle: "📤 طلب سحب", withBalance: "الرصيد المتاح:", withSubmit: "إرسال إلى الإدارة 📩", depTitle: "📥 محافظ الإيداع المعتمدة",
+                wheel1: "1$", wheel5: "5$", wheelCent: "0.60$", wheelCoffee: "قهوة", wheelPhone: "هاتف", wheel100: "100$", wheel1000: "1000$"
+            },
+            zh: {
+                brand: "Crypto China", deposit: "充值", withdraw: "提现", invite: "邀请",
+                totalBalance: "总数字资产", btnDeposit: "📥 充值", btnWithdraw: "📤 提现",
+                wheelTitle: "🎡 幸运大转盘", wheelDesc: "每位会员免费抽奖一次：", spinBtn: "立即转动 🎁",
+                taskTitle: "📈 每日量化任务", taskBadge: "每24小时", taskDesc: "执行每日自动化交易，立即获得 3% 收益。", taskBtn: "🚀 开启任务 (+3%)",
+                partnersTitle: "📊 支持的交易平台", partnersDesc: "支持各大主流交易平台直接充提：",
+                inviteMainTitle: "👥 三级分销返佣系统", inviteMainDesc: "一级: 15% | 二级: 5% | 三级: 1%",
+                labelCode: "专属邀请码:", labelLink: "专属邀请链接:", copyCode: "复制", copyLink: "复制",
+                teamTitle: "👥 团队统计与收益", teamDesc: "实时监控直推与间推成员：",
+                teamDirect: "直推成员", teamIndirect: "间推成员", vipHeader: "⭐ VIP 等级 (1 至 10)", vipSub: "点击相应等级立即激活：",
+                jobsTitle: "💼 职位与固定月薪", jobsSub: "根据团队规模享有稳定月薪：",
+                job1: "主管 (6直推 + 4间推)", job2: "组长 (12直推 + 8间推)", job3: "开发经理 (18直推 + 12间推)", job4: "执行总监 (30直推 + 20间推)", job5: "全球大使 (60直推 + 40间推)",
+                jobStatusDone: "已激活 ✅", jobStatusPending: "未达标",
+                tasksTitle: "📋 每日量化任务", tasksDesc: "点击一键执行量化交易并获取收益。", tasksBtn: "🚀 执行全部任务 (+3%)",
+                profileTitle: "👤 个人中心", profileStatus: "账户状态",
+                msgMainTitle: "🔔 系统通知与公告", msgMainDesc: "官方系统公告与最新活动通知：",
+                navHome: "首页", navInvite: "邀请", navTeam: "团队", navVip: "VIP", navJobs: "职位", navTasks: "任务", navProfile: "我的", navTg: "Telegram",
+                cancel: "取消", withTitle: "📤 申请提现", withBalance: "可用余额:", withSubmit: "提交审核 📩", depTitle: "📥 充值地址",
+                wheel1: "$1", wheel5: "$5", wheelCent: "$0.60", wheelCoffee: "咖啡", wheelPhone: "手机", wheel100: "$100", wheel1000: "$1000"
+            },
+            tr: {
+                brand: "Crypto China", deposit: "Yatır", withdraw: "Çek", invite: "Davet Et",
+                totalBalance: "Toplam Bakiye", btnDeposit: "📥 Para Yatır", btnWithdraw: "📤 Para Çek",
+                wheelTitle: "🎡 Şans Çarkı", wheelDesc: "Her üyeye 1 ücretsiz çevirme hakkı:", spinBtn: "Çarkı Çevir 🎁",
+                taskTitle: "📈 Günlük Görev", taskBadge: "24 Saat", taskDesc: "Günlük otomatik işlemi başlatın ve %3 kazanın.", taskBtn: "🚀 Görevi Başlat (+%3)",
+                partnersTitle: "📊 Desteklenen Platformlar", partnersDesc: "Tüm kripto borsalarından anında yatırım ve çekim:",
+                inviteMainTitle: "👥 3 Kademeli Referans", inviteMainDesc: "1. Seviye: %15 | 2. Seviye: %5 | 3. Seviye: %1",
+                labelCode: "Davet Kodu:", labelLink: "Davet Linki:", copyCode: "Kopyala", copyLink: "Kopyala",
+                teamTitle: "👥 Ekip İstatistikleri", teamDesc: "Ekip üyelerinizi takip edin:",
+                teamDirect: "Doğrudan Üyeler", teamIndirect: "Dolaylı Üyeler", vipHeader: "⭐ VIP Seviyeleri (1-10)", vipSub: "Anında aktivasyon için seviyeye tıklayın:",
+                jobsTitle: "💼 Pozisyonlar ve Maaşlar", jobsSub: "Ekip sayısına göre aylık sabit maaş:",
+                job1: "Süpervizör (6 Doğrudan + 4 Dolaylı)", job2: "Grup Lideri (12 Doğrudan + 8 Dolaylı)", job3: "Geliştirme Müdürü (18 Doğrudan + 12 Dolaylı)", job4: "Yönetici (30 Doğrudan + 20 Dolaylı)", job5: "Elçi (60 Doğrudan + 40 Dolaylı)",
+                jobStatusDone: "Aktif ✅", jobStatusPending: "Beklemede",
+                tasksTitle: "📋 Günlük Görevler", tasksDesc: "%3 kar elde etmek için işlemi tamamlayın.", tasksBtn: "🚀 Tüm Görevleri Tamamla",
+                profileTitle: "👤 Profil Ayarları", profileStatus: "Hesap Durumu",
+                msgMainTitle: "🔔 Bildirimler & Duyurular", msgMainDesc: "Yönetimden gelen resmi duyurular:",
+                navHome: "Ana Sayfa", navInvite: "Davet", navTeam: "Ekip", navVip: "VIP", navJobs: "Maaşlar", navTasks: "Görevler", navProfile: "Profil", navTg: "Telegram",
+                cancel: "İptal", withTitle: "📤 Para Çekme", withBalance: "Kullanılabilir Bakiye:", withSubmit: "Talebi Gönder 📩", depTitle: "📥 Yatırım Cüzdanları",
+                wheel1: "$1", wheel5: "$5", wheelCent: "$0.60", wheelCoffee: "Kahve", wheelPhone: "Telefon", wheel100: "$100", wheel1000: "$1000"
+            },
+            pt: {
+                brand: "Crypto China", deposit: "Depósito", withdraw: "Saque", invite: "Convidar",
+                totalBalance: "Saldo Total", btnDeposit: "📥 Depósito", btnWithdraw: "📤 Saque",
+                wheelTitle: "🎡 Roda da Fortuna", wheelDesc: "Giro grátis para todos os membros:", spinBtn: "Girar Agora 🎁",
+                taskTitle: "📈 Tarefa Diária", taskBadge: "24h", taskDesc: "Execute sua negociação diária e lucre 3%.", taskBtn: "🚀 Iniciar Tarefa (+3%)",
+                partnersTitle: "📊 Plataformas Suportadas", partnersDesc: "Deposite e saque pelas principais corretoras:",
+                inviteMainTitle: "👥 Programa de Indicação", inviteMainDesc: "Nível 1: 15% | Nível 2: 5% | Nível 3: 1%",
+                labelCode: "Código de Convite:", labelLink: "Link de Convite:", copyCode: "Copiar", copyLink: "Copiar",
+                teamTitle: "👥 Estatísticas de Equipe", teamDesc: "Acompanhe seus indicados:",
+                teamDirect: "Membros Diretos", teamIndirect: "Membros Indiretos", vipHeader: "⭐ Níveis VIP (1 a 10)", vipSub: "Clique para ativar instantaneamente:",
+                jobsTitle: "💼 Cargos & Salários", jobsSub: "Salários fixos com base na equipe:",
+                job1: "Supervisor (6 Diretos + 4 Indiretos)", job2: "Líder (12 Diretos + 8 Indiretos)", job3: "Gerente (18 Diretos + 12 Indiretos)", job4: "Executivo (30 Diretos + 20 Indiretos)", job5: "Embaixador (60 Diretos + 40 Indiretos)",
+                jobStatusDone: "Ativo ✅", jobStatusPending: "Pendente",
+                tasksTitle: "📋 Tarefas Diárias", tasksDesc: "Execute a negociação diária para receber 3%.", tasksBtn: "🚀 Concluir Tarefas (+3%)",
+                profileTitle: "👤 Perfil", profileStatus: "Status",
+                msgMainTitle: "🔔 Notificações Oficiais", msgMainDesc: "Avisos e comunicados da administração:",
+                navHome: "Início", navInvite: "Convidar", navTeam: "Equipe", navVip: "VIP", navJobs: "Cargos", navTasks: "Tarefas", navProfile: "Perfil", navTg: "Telegram",
+                cancel: "Cancelar", withTitle: "📤 Solicitar Saque", withBalance: "Saldo Disponível:", withSubmit: "Enviar Solicitação 📩", depTitle: "📥 Carteiras de Depósito",
+                wheel1: "$1", wheel5: "$5", wheelCent: "$0.60", wheelCoffee: "Café", wheelPhone: "Telefone", wheel100: "$100", wheel1000: "$1000"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang] || translations.en;
+            document.documentElement.setAttribute('lang', lang);
+            document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
+            document.getElementById('t-brand-title').innerText = t.brand;
+            document.getElementById('t-quick-deposit').innerText = t.deposit;
+            document.getElementById('t-quick-withdraw').innerText = t.withdraw;
+            document.getElementById('t-quick-invite').innerText = t.invite;
+            document.getElementById('t-total-balance-label').innerText = t.totalBalance;
+            document.getElementById('t-btn-deposit').innerText = t.btnDeposit;
+            document.getElementById('t-btn-withdraw').innerText = t.btnWithdraw;
+            document.getElementById('t-wheel-title').innerText = t.wheelTitle;
+            document.getElementById('t-wheel-desc').innerText = t.wheelDesc;
+            document.getElementById('spin-btn').innerText = hasSpunWheel ? "Completed ✅" : t.spinBtn;
+            document.getElementById('t-task-title').innerText = t.taskTitle;
+            document.getElementById('t-task-badge').innerText = t.taskBadge;
+            document.getElementById('t-task-desc').innerText = t.taskDesc;
+            document.getElementById('t-partners-title').innerText = t.partnersTitle;
+            document.getElementById('t-partners-desc').innerText = t.partnersDesc;
+            if (taskCooldownTime <= Date.now()) {
+                document.getElementById('t-task-btn').innerText = t.taskBtn;
+                document.getElementById('t-tasks-page-btn').innerText = t.tasksBtn;
+            }
+            document.getElementById('t-invite-main-title').innerText = t.inviteMainTitle;
+            document.getElementById('t-invite-main-desc').innerText = t.inviteMainDesc;
+            document.getElementById('t-label-code').innerText = t.labelCode;
+            document.getElementById('t-label-link').innerText = t.labelLink;
+            document.getElementById('t-copy-code').innerText = t.copyCode;
+            document.getElementById('t-copy-link').innerText = t.copyLink;
+            document.getElementById('t-team-title').innerText = t.teamTitle;
+            document.getElementById('t-team-desc').innerText = t.teamDesc;
+            document.getElementById('t-team-direct').innerText = t.teamDirect;
+            document.getElementById('t-team-indirect').innerText = t.teamIndirect;
+            document.getElementById('t-vip-header').innerText = t.vipHeader;
+            document.getElementById('t-vip-sub').innerText = t.vipSub;
+            document.getElementById('t-jobs-title').innerText = t.jobsTitle;
+            document.getElementById('t-jobs-sub').innerText = t.jobsSub;
+            document.getElementById('t-job-1').innerText = t.job1;
+            document.getElementById('t-job-2').innerText = t.job2;
+            document.getElementById('t-job-3').innerText = t.job3;
+            document.getElementById('t-job-4').innerText = t.job4;
+            document.getElementById('t-job-5').innerText = t.job5;
+            document.getElementById('t-tasks-page-title').innerText = t.tasksTitle;
+            document.getElementById('t-tasks-page-desc').innerText = t.tasksDesc;
+            document.getElementById('t-profile-title').innerText = t.profileTitle;
+            document.getElementById('t-profile-status-label').innerText = t.profileStatus;
+            document.getElementById('t-msg-main-title').innerText = t.msgMainTitle;
+            document.getElementById('t-msg-main-desc').innerText = t.msgMainDesc;
+            document.getElementById('nav-home').innerText = t.navHome;
+            document.getElementById('nav-invite').innerText = t.navInvite;
+            document.getElementById('nav-team').innerText = t.navTeam;
+            document.getElementById('nav-vip').innerText = t.navVip;
+            document.getElementById('nav-jobs').innerText = t.navJobs;
+            document.getElementById('nav-tasks').innerText = t.navTasks;
+            document.getElementById('nav-profile').innerText = t.navProfile;
+            document.getElementById('nav-tg').innerText = t.navTg;
+            document.getElementById('t-dep-title').innerText = t.depTitle;
+            document.getElementById('t-dep-cancel').innerText = t.cancel;
+            document.getElementById('t-with-title').innerText = t.withTitle;
+            document.getElementById('t-with-balance').innerText = t.withBalance;
+            document.getElementById('t-with-submit').innerText = t.withSubmit;
+            document.getElementById('t-with-cancel').innerText = t.cancel;
+
+            const w1 = document.querySelector('.wheel-text-1'); if(w1) w1.innerText = t.wheel1;
+            const w5 = document.querySelector('.wheel-text-5'); if(w5) w5.innerText = t.wheel5;
+            const wc = document.querySelector('.wheel-text-cent'); if(wc) wc.innerText = t.wheelCent;
+            const wcf = document.querySelector('.wheel-text-coffee'); if(wcf) wcf.innerText = t.wheelCoffee;
+            const wp = document.querySelector('.wheel-text-phone'); if(wp) wp.innerText = t.wheelPhone;
+            const w100 = document.querySelector('.wheel-text-100'); if(w100) w100.innerText = t.wheel100;
+            const w1000 = document.querySelector('.wheel-text-1000'); if(w1000) w1000.innerText = t.wheel1000;
+
+            updateJobsStatus();
+        }
+
+        function updateJobsStatus() {
+            const t = translations[currentLang] || translations.en;
+            const reqs = [
+                { id: '10', direct: 6, indirect: 4 },
+                { id: '20', direct: 12, indirect: 8 },
+                { id: '30', direct: 18, indirect: 12 },
+                { id: '50', direct: 30, indirect: 20 },
+                { id: '100', direct: 60, indirect: 40 }
+            ];
+            reqs.forEach((req) => {
+                const badge = document.getElementById(`job-status-${req.id}`);
+                if (badge) {
+                    if (directMembers >= req.direct && indirectMembers >= req.indirect) {
+                        badge.innerText = t.jobStatusDone;
+                        badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-lg font-bold";
+                    } else {
+                        badge.innerText = t.jobStatusPending;
+                        badge.className = "text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded-lg";
+                    }
+                }
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('user-balance').innerText = `$${currentBalance.toFixed(2)}`;
+            document.getElementById('modal-available-balance').innerText = `$${currentBalance.toFixed(2)}`;
+            document.getElementById('direct-count-display').innerText = directMembers;
+            document.getElementById('indirect-count-display').innerText = indirectMembers;
+            document.getElementById('current-vip-badge').innerText = `Current Level: VIP ${currentVIPLevel}`;
+            document.getElementById('profile-vip-status').innerText = `Active (VIP ${currentVIPLevel})`;
+            
+            const dailyProfit = currentBalance * 0.03;
+            document.getElementById('daily-earning-text').innerText = `Daily Earning (3%): $${dailyProfit.toFixed(2)}`;
+            
+            localStorage.setItem("userBalance", currentBalance);
+            localStorage.setItem("userVIP", currentVIPLevel);
+            localStorage.setItem("directMembers", directMembers);
+            localStorage.setItem("indirectMembers", indirectMembers);
+            updateJobsStatus();
+        }
+
+        function openDepositModal() { document.getElementById('deposit-modal').classList.remove('hidden'); }
+        function closeDepositModal() { document.getElementById('deposit-modal').classList.add('hidden'); }
+        function openWithdrawModal() { updateUI(); document.getElementById('withdraw-modal').classList.remove('hidden'); }
+        function closeWithdrawModal() { document.getElementById('withdraw-modal').classList.add('hidden'); }
+
+        function copyAddress(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text);
+            alert((currentLang === 'ar' ? 'تم نسخ العنوان: ' : 'Address copied: ') + text);
+        }
+
+        function copyUserCode() {
+            navigator.clipboard.writeText(userReferralCode);
+            alert(currentLang === 'ar' ? 'تم نسخ رمز الدعوة!' : 'Referral code copied!');
+        }
+
+        function copyUserLink() {
+            navigator.clipboard.writeText(userReferralLink);
+            alert(currentLang === 'ar' ? 'تم نسخ رابط الدعوة!' : 'Referral link copied!');
+        }
+
+        function submitDeposit() {
+            const input = document.getElementById('input-deposit-amount');
+            const amount = parseFloat(input.value);
+            if (!amount || amount <= 0) {
+                alert(currentLang === 'ar' ? 'يرجى إدخال مبلغ صحيح' : 'Please enter a valid deposit amount');
+                return;
+            }
+            currentBalance += amount;
+            directMembers += 2;
+            indirectMembers += 1;
+            updateUI();
+            alert((currentLang === 'ar' ? 'تم تأكيد الإيداع! تمت إضافة $' : 'Deposit confirmed!$') + amount.toFixed(2));
+            input.value = '';
+            closeDepositModal();
+        }
+
+        function calculateWithdrawFee() {
+            const amount = parseFloat(document.getElementById('withdraw-amount-input').value) || 0;
+            const fee = amount * 0.10;
+            const net = Math.max(0, amount - fee);
+            document.getElementById('fee-text').innerText = `$${fee.toFixed(2)}`;
+            document.getElementById('net-receive-text').innerText = `$${net.toFixed(2)}`;
+        }
+
+        function submitWithdraw() {
+            const amount = parseFloat(document.getElementById('withdraw-amount-input').value);
+            const address = document.getElementById('withdraw-address-input').value.trim();
+            const pin = document.getElementById('withdraw-fund-password').value.trim();
+
+            if (!amount || amount < 3) {
+                alert(currentLang === 'ar' ? 'الحد الأدنى للسحب هو 3$' : 'Minimum withdrawal amount is $3.00!');
+                return;
+            }
+            if (amount > currentBalance) {
+                alert(currentLang === 'ar' ? 'المبلغ المطلوب أكبر من رصيدك المتاح!' : 'Amount requested exceeds available balance!');
+                return;
+            }
+            if (!address) {
+                alert(currentLang === 'ar' ? 'يرجى إدخال عنوان المحفظة' : 'Please enter wallet address!');
+                return;
+            }
+            if (!pin) {
+                alert(currentLang === 'ar' ? 'يرجى إدخال كلمة مرور الصندوق' : 'Please enter fund password!');
+                return;
+            }
+
+            currentBalance -= amount;
+            updateUI();
+            alert(currentLang === 'ar' ? 'تم تقديم طلب السحب بنجاح وهو قيد المراجعة!' : 'Withdrawal submitted successfully and is pending review!');
+            document.getElementById('withdraw-amount-input').value = '';
+            document.getElementById('withdraw-address-input').value = '';
+            document.getElementById('withdraw-fund-password').value = '';
+            closeWithdrawModal();
+        }
+
+        function directActivateVIP(level, req) {
+            if (currentBalance < req) {
+                alert((currentLang === 'ar' ? `رصيدك الحالي غير كافٍ لتفعيل VIP ${level}. المطلوب: $` : `Insufficient balance to activate VIP ${level}. Required: $`) + req);
+                openDepositModal();
+            } else {
+                currentVIPLevel = level;
+                updateUI();
+                alert((currentLang === 'ar' ? `تهانينا! تم تفعيل المستوى VIP ${level} بنجاح 🎉` : `Congratulations! VIP Level ${level} activated 🎉`));
+            }
+        }
+
+        function startDailyTask() {
+            if (currentBalance <= 0) {
+                alert(currentLang === 'ar' ? 'رصيدك 0.00$' : 'Your balance is $0.00');
+                return;
+            }
+            if (taskCooldownTime > Date.now()) {
+                alert(currentLang === 'ar' ? 'المهمة قيد العد التنازلي. يرجى الانتظار.' : 'Task is on countdown. Please wait.');
+                return;
+            }
+            const reward = currentBalance * 0.03;
+            currentBalance += reward;
+            updateUI();
+            alert((currentLang === 'ar' ? 'تم تنفيذ الصفقة بنجاح! ربح +' : 'Trading deal executed! Profit +') + `$${reward.toFixed(2)}`);
+            taskCooldownTime = Date.now() + (24 * 60 * 60 * 1000);
+            localStorage.setItem("taskCooldownTime", taskCooldownTime);
+            runTaskCountdown();
+        }
+
+        function runTaskCountdown() {
+            const btn1 = document.getElementById('t-task-btn');
+            const btn2 = document.getElementById('t-tasks-page-btn');
+            if (taskTimerInterval) clearInterval(taskTimerInterval);
+            taskTimerInterval = setInterval(() => {
+                const now = Date.now();
+                const timeLeft = taskCooldownTime - now;
+                if (timeLeft <= 0) {
+                    clearInterval(taskTimerInterval);
+                    const t = translations[currentLang] || translations.en;
+                    if (btn1) {
+                        btn1.disabled = false;
+                        btn1.innerText = t.taskBtn;
+                        btn1.className = "w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-zinc-950 font-bold py-2.5 rounded-xl text-sm shadow cursor-pointer";
+                    }
+                    if (btn2) {
+                        btn2.disabled = false;
+                        btn2.innerText = t.tasksBtn;
+                        btn2.className = "w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-zinc-950 font-bold py-3 rounded-xl text-sm shadow cursor-pointer";
+                    }
+                } else {
+                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                    const timeStr = `⏳ ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    if (btn1) {
+                        btn1.disabled = true;
+                        btn1.innerText = timeStr;
+                        btn1.className = "w-full bg-zinc-800 text-yellow-400 font-bold py-2.5 rounded-xl text-sm cursor-not-allowed border border-yellow-600/30";
+                    }
+                    if (btn2) {
+                        btn2.disabled = true;
+                        btn2.innerText = timeStr;
+                        btn2.className = "w-full bg-zinc-800 text-yellow-400 font-bold py-3 rounded-xl text-sm cursor-not-allowed border border-yellow-600/30";
+                    }
+                }
+            }, 1000);
+        }
+
+        let wheelSpins = 0;
+        function spinWheelAction() {
+            if (hasSpunWheel) {
+                alert(currentLang === 'ar' ? 'لقد استخدمت دورتك المجانية بالفعل!' : 'You already used your free spin!');
+                return;
+            }
+            const wheel = document.getElementById('interactive-wheel');
+            const btn = document.getElementById('spin-btn');
+            btn.disabled = true;
+            wheelSpins++;
+            hasSpunWheel = true;
+            localStorage.setItem("hasSpunWheel", "true");
+            
+            const targetDeg = (wheelSpins * 3600) + 360;
+            wheel.style.transform = `rotate(${targetDeg}deg)`;
+            setTimeout(() => {
+                currentBalance += 1.00;
+                updateUI();
+                btn.innerText = "Completed ✅";
+                alert(currentLang === 'ar' ? 'تهانينا! توقفت العجلة على (1$) وتمت إضافتها إلى رصيدك 🎉' : 'Congratulations! Landed on $1 and added to balance 🎉');
+            }, 4000);
+        }
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-yellow-400', 'font-bold');
+                btn.classList.add('text-zinc-400', 'font-medium');
+            });
+            const target = document.getElementById(tabId);
+            if (target) target.classList.remove('hidden');
+            if (btnElement) {
+                btnElement.classList.remove('text-zinc-400', 'font-medium');
+                btnElement.classList.add('text-yellow-400', 'font-bold');
+            }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = "index.html";
+        }
+
+        window.onload = function() {
+            document.getElementById('user-ref-code').innerText = userReferralCode;
+            document.getElementById('user-ref-link').innerText = userReferralLink;
+            updateUI();
+            if (taskCooldownTime > Date.now()) {
+                runTaskCountdown();
+            }
+        };
+    </script>
+</body>
+</html>
+
